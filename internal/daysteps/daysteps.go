@@ -32,10 +32,16 @@ func (ds *DaySteps) Parse(datastring string) (err error) {
 	if err != nil {
 		return err
 	}
+	if steps <= 0 {
+		return errors.New("incorrect step values")
+	}
 	ds.Steps = steps
 	time, err := time.ParseDuration(str[1])
 	if err != nil {
 		return err
+	}
+	if time <= 0 {
+		return errors.New("duration value error")
 	}
 	ds.Duration = time
 	return nil
@@ -51,7 +57,7 @@ func (ds DaySteps) ActionInfo() (string, error) {
 	distance := spentenergy.Distance(steps)
 	calories := spentenergy.WalkingSpentCalories(steps, ds.Weight, ds.Height, time)
 	if calories <= 0 {
-		return "", errors.New("error in calorie calculations")
+		return "", errors.New("incorrect calorie value")
 	}
 	message := fmt.Sprintf(
 		"Количество шагов: %d.\n"+
