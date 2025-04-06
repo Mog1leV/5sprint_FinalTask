@@ -1,6 +1,10 @@
 package spentenergy
 
-import ...
+import (
+	"errors"
+	"fmt"
+	"time"
+)
 
 // Основные константы, необходимые для расчетов.
 const (
@@ -26,10 +30,22 @@ const (
 // weight float64 — вес пользователя.
 // height float64 — рост пользователя.
 // duration time.Duration — длительность тренировки.
-//
-// Создайте функцию ниже.
-...
-
+func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) float64 {
+	if weight <= 0 || height <= 0 {
+		err := errors.New("error value of weight and height")
+		fmt.Println(err)
+		return 0
+	}
+	if duration <= 0 {
+		err := errors.New("duration value error")
+		fmt.Println(err)
+		return 0
+	}
+	averageSpeed := MeanSpeed(steps, duration)
+	time := duration.Hours()
+	calories := ((walkingCaloriesWeightMultiplier * weight) + (averageSpeed*averageSpeed/height)*walkingSpeedHeightMultiplier) * float64(time) * minInH
+	return calories
+}
 
 // Константы для расчета калорий, расходуемых при беге.
 const (
@@ -44,10 +60,21 @@ const (
 // steps int - количество шагов.
 // weight float64 — вес пользователя.
 // duration time.Duration — длительность тренировки.
-//
-// Создайте функцию ниже.
-...
-
+func RunningSpentCalories(steps int, weight float64, duration time.Duration) float64 {
+	if weight <= 0 {
+		err := errors.New("error value of weight and height")
+		fmt.Println(err)
+		return 0
+	}
+	if duration <= 0 {
+		err := errors.New("duration value error")
+		fmt.Println(err)
+		return 0
+	}
+	averageSpeed := MeanSpeed(steps, duration)
+	calories := ((runningCaloriesMeanSpeedMultiplier * averageSpeed) - runningCaloriesMeanSpeedShift) * weight
+	return calories
+}
 
 // МeanSpeed возвращает значение средней скорости движения во время тренировки.
 //
@@ -55,10 +82,13 @@ const (
 //
 // steps int — количество совершенных действий(число шагов при ходьбе и беге).
 // duration time.Duration — длительность тренировки.
-// 
-// Создайте функцию ниже.
-...
-
+func MeanSpeed(steps int, duration time.Duration) float64 {
+	if duration <= 0 {
+		return 0
+	}
+	distance := Distance(steps)
+	return distance / float64(duration.Hours())
+}
 
 // Distance возвращает дистанцию(в километрах), которую преодолел пользователь за время тренировки.
 //
@@ -66,8 +96,6 @@ const (
 // Параметры:
 //
 // steps int — количество совершенных действий (число шагов при ходьбе и беге).
-// 
-// Создайте функцию ниже
-...
-
-
+func Distance(steps int) float64 {
+	return float64(steps) * lenStep / mInKm
+}
